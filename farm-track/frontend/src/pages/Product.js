@@ -15,10 +15,9 @@ const AddProduct = ({ isOpen, onClose, onSave }) => {
   });
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [id]: value,
+      [e.target.id]: e.target.value,
     }));
   };
 
@@ -133,18 +132,16 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
   }, [product]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [e.target.name]: e.target.value,
     }));
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
     setFormData((prev) => ({
       ...prev,
-      image: file,
+      image: e.target.files[0],
     }));
   };
 
@@ -167,18 +164,7 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
     }
   };
 
-  const handleReset = () => {
-    setFormData({
-      name: product ? product.name : "",
-      type: product ? product.type : "",
-      description: product ? product.description : "",
-      image: null,
-    });
-  };
-
-  if (!isOpen) return null;
-
-  return (
+  return isOpen ? (
     <div className="modal">
       <div className="modal-content">
         <h2>Edit Product</h2>
@@ -246,13 +232,13 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
 
           <div className="button-container">
             <button type="submit" className="save-button"><FaSyncAlt /></button>
-            <button type="button" onClick={handleReset} className="reset-button"><FaRedoAlt /></button>
+            <button type="button" onClick={() => setFormData({ name: product ? product.name : "", type: product ? product.type : "", description: product ? product.description : "", image: null, })} className="reset-button"><FaRedoAlt /></button>
             <button type="button" onClick={onClose} className="close-button"><FaTimes /></button>
           </div>
         </form>
       </div>
     </div>
-  );
+  ) : null;
 };
 
 const DeleteProduct = ({ isOpen, onClose, onDelete, product }) => {
@@ -306,7 +292,9 @@ const DetailProduct = ({ isOpen, product, onClose }) => {
             <p><strong>Mô tả:</strong> {product.description}</p>
             <p><strong>Ngày tạo:</strong> {new Date(product.created).toLocaleDateString()}</p>
           </div>
-          <img src={product.image} alt={product.name} className="product-image" />
+          <div>
+            <img src={product.image} alt={product.name} className="product-image" />
+          </div>
         </div>
         <h4>Các đợt thu hoạch:</h4>
         {product.harvests.length > 0 ? (
@@ -317,11 +305,20 @@ const DetailProduct = ({ isOpen, product, onClose }) => {
                 className="harvest-item"
                 onClick={() => handleHarvestClick(harvest)}
               >
-                <p><strong>Lô hàng:</strong> {harvest.batch}</p>
-                <p><strong>Ngày thu hoạch:</strong> {new Date(harvest.harvestDate).toLocaleDateString()}</p>
-                <p><strong>Ngày hết hạn:</strong> {new Date(harvest.expirationDate).toLocaleDateString()}</p>
-                <p><strong>Số lượng:</strong> {harvest.quantity}</p>
-                <p><strong>Chứng nhận:</strong> {harvest.certification}</p>
+                <div className="product-container">
+                  <div> 
+                    <p><strong>Lô hàng:</strong> {harvest.batch}</p>
+                    <p><strong>Ngày thu hoạch:</strong> {new Date(harvest.harvestDate).toLocaleDateString()}</p>
+                    <p><strong>Ngày hết hạn:</strong> {new Date(harvest.expirationDate).toLocaleDateString()}</p>
+                    <p><strong>Số lượng:</strong> {harvest.quantity}</p>
+                    <p><strong>Chứng nhận:</strong> {harvest.certification}</p>
+                  </div>
+                  {harvest.qrCode && (
+                    <div>
+                      <img src={harvest.qrCode} alt="QR Code" style={{ maxWidth: '150px', height: 'auto' }} />
+                    </div>
+                  )}
+                </div>
 
                 {selectedHarvest === harvest && (
                   <div className="harvest-detail">

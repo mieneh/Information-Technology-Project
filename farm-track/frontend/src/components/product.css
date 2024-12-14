@@ -180,15 +180,15 @@ button {
 }
 
 .product-container {
-  display: flex;
-  align-items: flex-start;
   gap: 16px;
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
 }
   
 .product-image {
   width: 150px;
-  height: 150px;
-  object-fit: cover;
+  height: auto;
   border-radius: 8px;
 }  
 
@@ -563,7 +563,7 @@ button {
 .image-thumbnail {
   max-width: 100%;
   height: auto;
-  max-height: 200px; /* Giới hạn chiều cao của ảnh */
+  max-height: 200px;
   border-radius: 8px;
   border: 1px solid #ccc;
   object-fit: cover;

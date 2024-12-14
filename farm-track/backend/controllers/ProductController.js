@@ -122,7 +122,7 @@ exports.updateProduct = async (req, res) => {
 
             res.status(200).json({ message: 'Sản phẩm được cập nhật thành công!', product });
         } catch (error) {
-            console.error('Error updating product:', error);
+            console.error(error);
             res.status(500).json({ message: 'Có lỗi xảy ra trong khi cập nhật sản phẩm.' });
         }
     });

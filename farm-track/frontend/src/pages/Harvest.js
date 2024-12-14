@@ -15,8 +15,8 @@ const AddHarvest = ({ isOpen, onClose, onSave }) => {
     quantity: '',
     certification: '',
   });
-  const [products, setProducts] = useState([]);
 
+  const [products, setProducts] = useState([]);
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -26,39 +26,37 @@ const AddHarvest = ({ isOpen, onClose, onSave }) => {
         alert('Error fetching products!');
       }
     };
-
     fetchProducts();
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.id]: e.target.value,
-    });
+    }));
 
     if (e.target.id === 'productID') {
       const selectedProduct = products.find(product => product._id === e.target.value);
       if (selectedProduct) {
-        const batch = `${selectedProduct.name}-${Date.now()}`;
-        setFormData(prevData => ({
-          ...prevData,
+        const currentDate = new Date();
+        const formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+        const batch = `${selectedProduct.name}_${formattedDate}`;
+        setFormData(prev => ({
+          ...prev,
           batch: batch
         }));
       }
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:3000/api/harvests', formData);
-      onSave(response.data);
-      onClose();
-      alert('Harvest data saved successfully!');
-    } catch (error) {
-      alert('Error saving harvest data!');
+    if (Object.values(formData).some((value) => value === null || value === undefined || value === '')) {
+      alert('Vui lòng điền vào tất cả các trường!');
+      return;
     }
-  };
+    onSave(formData);
+  };  
 
   return isOpen ? (
     <div className="modal">
@@ -142,7 +140,7 @@ const AddHarvest = ({ isOpen, onClose, onSave }) => {
 
 const EditHarvest = ({ isOpen, onClose, onSave, harvest }) => {
   const [formData, setFormData] = useState({
-    harvestDate: harvest?.harvestDate ? harvest.harvestDate.slice(0, 10) : '', // Lấy 10 ký tự đầu tiên (yyyy-mm-dd)
+    harvestDate: harvest?.harvestDate ? harvest.harvestDate.slice(0, 10) : '',
     expirationDate: harvest?.expirationDate ? harvest.expirationDate.slice(0, 10) : '',
     quantity: harvest?.quantity || '',
     certification: harvest?.certification || '',
@@ -253,6 +251,7 @@ const DeleteHarvest = ({ isOpen, onClose, onDelete, harvest }) => {
 const Harvest = () => {
   const [harvests, setHarvests] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [selectedHarvest, setSelectedHarvest] = useState(null);
   
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -264,29 +263,33 @@ const Harvest = () => {
   const [harvestToDelete, setHarvestToDelete] = useState(null);
 
   useEffect(() => {
-    const fetchHarvests = async () => {
+    const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/harvests');
         setHarvests(response.data);
         setLoading(false);
       } catch (error) {
-        alert('Có lỗi xảy ra khi tải dữ liệu thu hoạch!');
+        if (error.response && error.response.data) {
+          alert(error.response.data.message);
+        } else {
+          alert('Có lỗi xảy ra khi tải dữ liệu thu hoạch!');
+        }
         setLoading(false);
       }
     };
     
-    fetchHarvests();
+    fetchData();
   }, []);
 
   const handleHarvestClick = (harvest) => {
     setSelectedHarvest(harvest === selectedHarvest ? null : harvest);
   };
 
-  const handleAddHarvest = () => {
+  const handleAdd = () => {
     setAddModalOpen(true);
   };
 
-  const handleSaveHarvest = async (newHarvest) => {
+  const handleSaveAdd = async (newHarvest) => {
     try {
       const response = await axios.post('http://localhost:3000/api/harvests', newHarvest);
       setHarvests([...harvests, response.data]);
@@ -348,7 +351,7 @@ const Harvest = () => {
       <div style={{ padding: '20px' }}>
         <div className="header-container">
           <h2 className="header-title">Quản lý thu hoạch</h2>
-          <button onClick={handleAddHarvest} className="add-button">
+          <button onClick={handleAdd} className="add-button">
             <FaPlus />
           </button>
         </div>
@@ -376,34 +379,39 @@ const Harvest = () => {
                   <p>{harvest.product.type}</p>
                 </div>
               </SwipeToRevealActions>
-
-                {selectedHarvest === harvest && (
+              {selectedHarvest === harvest && (
                 <div className="harvest-details">
-                    <p><FaCalendarAlt style={{ color: '#FF6347' }}/> <strong>Ngày thu hoạch:</strong> {new Date(harvest.harvestDate).toLocaleDateString()}</p>
-                    <p><FaRegClock style={{ color: '#4682B4' }}/> <strong>Ngày hết hạn:</strong> {new Date(harvest.expirationDate).toLocaleDateString()}</p>
-                    <p><FaHashtag style={{ color: '#32CD32' }}/> <strong>Số lượng:</strong> {harvest.quantity}</p>
-                    <p><FaCheckCircle style={{ color: '#FFD700' }}/> <strong>Chứng nhận:</strong> {harvest.certification}</p>
-                    <p><FaMapMarkerAlt style={{ color: '#8A2BE2' }}/> <strong>Thông tin theo dõi:</strong></p>
-
-                    {harvest.tracking.length > 0 ? (
-                        <div className="tracking-container">
-                            {harvest.tracking.map((track) => (
-                            <div key={track._id} className="tracking-item">
-                                <p><FaMapMarkerAlt style={{ color: '#1E90FF' }} /> <strong>Vị trí:</strong> {JSON.parse(track.location).lat}, {JSON.parse(track.location).lng}</p>
-                                <p><FaThermometerHalf style={{ color: '#FF6347' }} /> <strong>Nhiệt độ:</strong> {track.temperature.$numberDecimal} °C</p>
-                                <p><FaTint style={{ color: '#32CD32' }} /> <strong>Độ ẩm:</strong> {track.humidity.$numberDecimal} %</p>
-                                <p><FaCheckCircle style={{ color: '#228B22' }} /> <strong>Trạng thái:</strong> {track.status}</p>
-                                <p><FaClock style={{ color: '#FFD700' }} /> <strong>Cập nhật:</strong> {new Date(track.updated).toLocaleString()}</p>
-
-                            </div>
-                            ))}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div> 
+                      <p><FaCalendarAlt style={{ color: '#FF6347' }}/> <strong>Ngày thu hoạch:</strong> {new Date(harvest.harvestDate).toLocaleDateString()}</p>
+                      <p><FaRegClock style={{ color: '#4682B4' }}/> <strong>Ngày hết hạn:</strong> {new Date(harvest.expirationDate).toLocaleDateString()}</p>
+                      <p><FaHashtag style={{ color: '#32CD32' }}/> <strong>Số lượng:</strong> {harvest.quantity}</p>
+                      <p><FaCheckCircle style={{ color: '#FFD700' }}/> <strong>Chứng nhận:</strong> {harvest.certification}</p>
+                      <p><FaMapMarkerAlt style={{ color: '#8A2BE2' }}/> <strong>Thông tin theo dõi:</strong></p>
+                    </div>
+                    {harvest.qrCode && (
+                      <div>
+                        <img src={harvest.qrCode} alt="QR Code" style={{ maxWidth: '200px', height: 'auto' }} />
+                      </div>
+                    )}
+                  </div>
+                  {harvest.tracking.length > 0 ? (
+                    <div className="tracking-container">
+                      {harvest.tracking.map((track) => (
+                        <div key={track._id} className="tracking-item">
+                          <p><FaMapMarkerAlt style={{ color: '#1E90FF' }} /> <strong>Vị trí:</strong> {JSON.parse(track.location).lat}, {JSON.parse(track.location).lng}</p>
+                          <p><FaThermometerHalf style={{ color: '#FF6347' }} /> <strong>Nhiệt độ:</strong> {track.temperature.$numberDecimal} °C</p>
+                          <p><FaTint style={{ color: '#32CD32' }} /> <strong>Độ ẩm:</strong> {track.humidity.$numberDecimal} %</p>
+                          <p><FaCheckCircle style={{ color: '#228B22' }} /> <strong>Trạng thái:</strong> {track.status}</p>
+                          <p><FaClock style={{ color: '#FFD700' }} /> <strong>Cập nhật:</strong> {new Date(track.updated).toLocaleString()}</p>
                         </div>
-                    ) : (
-                    <p>Không có thông tin theo dõi nào cho đợt thu hoạch này.</p>
+                      ))}
+                    </div>
+                  ) : (
+                  <p>Không có thông tin theo dõi nào cho đợt thu hoạch này.</p>
                 )}
                 </div>
               )}
-              
             </div>
           ))
         )}
@@ -411,16 +419,16 @@ const Harvest = () => {
       <AddHarvest 
         isOpen={addModalOpen} 
         onClose={() => setAddModalOpen(false)} 
-        onSave={handleSaveHarvest} 
+        onSave={handleSaveAdd}
       />
       {harvestToEdit && (
-      <EditHarvest
-        isOpen={editModalOpen}
-        harvest={harvestToEdit}
-        onClose={() => setEditModalOpen(false)}
-        onSave={handleSaveEdit}
-      />
-    )}
+        <EditHarvest
+          isOpen={editModalOpen}
+          harvest={harvestToEdit}
+          onClose={() => setEditModalOpen(false)}
+          onSave={handleSaveEdit}
+        />
+      )}
       <DeleteHarvest
         isOpen={deleteModalOpen}
         harvest={harvestToDelete}
