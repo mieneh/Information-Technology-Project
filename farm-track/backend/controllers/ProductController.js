@@ -100,7 +100,7 @@ exports.updateProduct = async (req, res) => {
         const image = req.file ? `img/${req.file.filename}` : null;
 
         try {
-            const product = await Product.findById(req.params.id).lean();
+            const product = await Product.findById(req.params.id);
         
             if (!product) {
                 return res.status(404).json({ message: 'Sản phẩm không tồn tại' });

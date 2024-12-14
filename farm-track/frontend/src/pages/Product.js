@@ -1,3 +1,5 @@
+//frontend/src/pages/Product.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SwipeToRevealActions from "react-swipe-to-reveal-actions";
@@ -113,9 +115,9 @@ const AddProduct = ({ isOpen, onClose, onSave }) => {
 
 const EditProduct = ({ isOpen, onClose, onSave, product }) => {
   const [formData, setFormData] = useState({
-    name: product?.name || '',
-    type: product?.type || 'Rau',
-    description: product?.description || '',
+    name: "",
+    type: "",
+    description: "",
     image: null,
   });
 
@@ -131,10 +133,10 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
   }, [product]);
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [id]: value,
+      [name]: value,
     }));
   };
 
@@ -156,28 +158,43 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
     if (formData.image) {
       formDataToSend.append('image', formData.image);
     }
-
-    onSave(formDataToSend);
+    
+    try {
+      await onSave(formDataToSend);
+      onClose();
+    } catch (error) {
+      console.error("Error saving product:", error);
+    }
   };
 
-  return isOpen ? (
+  const handleReset = () => {
+    setFormData({
+      name: product ? product.name : "",
+      type: product ? product.type : "",
+      description: product ? product.description : "",
+      image: null,
+    });
+  };
+
+  if (!isOpen) return null;
+
+  return (
     <div className="modal">
       <div className="modal-content">
-        <h2>Sửa Sản Phẩm</h2>
+        <h2>Edit Product</h2>
         <form onSubmit={handleSubmit} encType="multipart/form-data">
           <label htmlFor="name" className="label">Tên sản phẩm</label>
           <input
             type="text"
-            id="name"
+            name="name"
             value={formData.name}
             onChange={handleChange}
             className="input-field"
             required
           />
-
           <label htmlFor="type" className="label">Loại sản phẩm</label>
           <select
-            id="type"
+            name="type"
             value={formData.type}
             onChange={handleChange}
             className="input-field"
@@ -192,7 +209,7 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
 
           <label htmlFor="description" className="label">Mô tả</label>
           <textarea
-            id="description"
+            name="description"
             value={formData.description}
             onChange={handleChange}
             className="textarea"
@@ -200,11 +217,10 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
           />
 
           <label htmlFor="image" className="label">Hình ảnh</label>
-          <input
-            type="file"
-            id="image"
-            accept="image/*"
-            onChange={handleFileChange}
+          <input 
+            type="file" 
+            name="image" 
+            onChange={handleFileChange} 
             className="input-field"
           />
 
@@ -216,7 +232,6 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
                 alt="Product Preview"
                 className="image-thumbnail"
               />
-              
             </div>
           ) : product?.image ? (
             <div className="image-preview">
@@ -226,19 +241,18 @@ const EditProduct = ({ isOpen, onClose, onSave, product }) => {
                 alt="Current Product"
                 className="image-thumbnail"
               />
-              
             </div>
           ) : null}
 
           <div className="button-container">
             <button type="submit" className="save-button"><FaSyncAlt /></button>
-            <button type="reset" className="reset-button" onClick={() => setFormData({ name: product?.name || '', type: 'Rau', description: product?.description || '', image: null })}><FaRedoAlt /> </button>
+            <button type="button" onClick={handleReset} className="reset-button"><FaRedoAlt /></button>
             <button type="button" onClick={onClose} className="close-button"><FaTimes /></button>
           </div>
         </form>
       </div>
     </div>
-  ) : null;
+  );
 };
 
 const DeleteProduct = ({ isOpen, onClose, onDelete, product }) => {
@@ -271,176 +285,174 @@ const DeleteProduct = ({ isOpen, onClose, onDelete, product }) => {
   ) : null;
 };
 
-const ProductModal = ({ isOpen, product, onClose }) => {
-    const [selectedHarvest, setSelectedHarvest] = useState(null);
-    const handleHarvestClick = (harvest) => {
-        setSelectedHarvest(harvest === selectedHarvest ? null : harvest);
-    };
+const DetailProduct = ({ isOpen, product, onClose }) => {
+  const [selectedHarvest, setSelectedHarvest] = useState(null);
+  const handleHarvestClick = (harvest) => {
+    setSelectedHarvest(harvest === selectedHarvest ? null : harvest);
+  };
       
-    if (!product) return null;
+  if (!product) return null;
   
-    return isOpen ? (
-      <div className="modal">
-        <div className="modal-content content-product">
+  return isOpen ? (
+    <div className="modal">
+      <div className="modal-content content-product">
         <div className="modal-header">
-        <h2>{product.name}</h2>
-        <button type="button" onClick={onClose} className="close-button-product">
-          <FaTimes />
-        </button>
-      </div>
-          <div className="product-container">
-            <div>
-                <p><strong>Loại:</strong> {product.type}</p>
-                <p><strong>Mô tả:</strong> {product.description}</p>
-                <p><strong>Ngày tạo:</strong> {new Date(product.created).toLocaleDateString()}</p>
-            </div>
-            <img src={product.image} alt={product.name} className="product-image" />
+          <h2>{product.name}</h2>
+          <button type="button" onClick={onClose} className="close-button-product"><FaTimes /></button>
         </div>
-          <h4>Các đợt thu hoạch:</h4>
-              {product.harvests.length > 0 ? (
-                <ul className="harvest-list">
-                  {product.harvests.map((harvest) => (
-                    <li
-                      key={harvest._id}
-                      className="harvest-item"
-                      onClick={() => handleHarvestClick(harvest)}
-                    >
-                      <p><strong>Lô hàng:</strong> {harvest.batch}</p>
-                      <p><strong>Ngày thu hoạch:</strong> {new Date(harvest.harvestDate).toLocaleDateString()}</p>
-                      <p><strong>Ngày hết hạn:</strong> {new Date(harvest.expirationDate).toLocaleDateString()}</p>
-                      <p><strong>Số lượng:</strong> {harvest.quantity}</p>
-                      <p><strong>Chứng nhận:</strong> {harvest.certification}</p>
+        <div className="product-container">
+          <div>
+            <p><strong>Loại:</strong> {product.type}</p>
+            <p><strong>Mô tả:</strong> {product.description}</p>
+            <p><strong>Ngày tạo:</strong> {new Date(product.created).toLocaleDateString()}</p>
+          </div>
+          <img src={product.image} alt={product.name} className="product-image" />
+        </div>
+        <h4>Các đợt thu hoạch:</h4>
+        {product.harvests.length > 0 ? (
+          <ul className="harvest-list">
+            {product.harvests.map((harvest) => (
+              <li
+                key={harvest._id}
+                className="harvest-item"
+                onClick={() => handleHarvestClick(harvest)}
+              >
+                <p><strong>Lô hàng:</strong> {harvest.batch}</p>
+                <p><strong>Ngày thu hoạch:</strong> {new Date(harvest.harvestDate).toLocaleDateString()}</p>
+                <p><strong>Ngày hết hạn:</strong> {new Date(harvest.expirationDate).toLocaleDateString()}</p>
+                <p><strong>Số lượng:</strong> {harvest.quantity}</p>
+                <p><strong>Chứng nhận:</strong> {harvest.certification}</p>
 
-                      {selectedHarvest === harvest && (
-                        <div className="harvest-detail">
-                          <p><strong>Thông tin theo dõi:</strong></p>
-                          {harvest.tracking.length > 0 ? (
-                            <div className="tracking-container">
-                              {harvest.tracking.map((track) => (
-                                <div key={track._id} className="tracking-item">
-                                  <p><strong>Vị trí:</strong> {JSON.parse(track.location).lat}, {JSON.parse(track.location).lng}</p>
-                                  <p><strong>Nhiệt độ:</strong> {track.temperature.$numberDecimal} °C</p>
-                                  <p><strong>Độ ẩm:</strong> {track.humidity.$numberDecimal} %</p>
-                                  <p><strong>Trạng thái:</strong> {track.status}</p>
-                                  <p><strong>Cập nhật:</strong> {new Date(track.updated).toLocaleString()}</p>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p>Không có thông tin theo dõi nào cho đợt thu hoạch này.</p>
-                          )}
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Chưa có đợt thu hoạch nào.</p>
-              )}
-        </div>
+                {selectedHarvest === harvest && (
+                  <div className="harvest-detail">
+                    <p><strong>Thông tin theo dõi:</strong></p>
+                    {harvest.tracking.length > 0 ? (
+                      <div className="tracking-container">
+                        {harvest.tracking.map((track) => (
+                          <div key={track._id} className="tracking-item">
+                            <p><strong>Vị trí:</strong> {JSON.parse(track.location).lat}, {JSON.parse(track.location).lng}</p>
+                            <p><strong>Nhiệt độ:</strong> {track.temperature.$numberDecimal} °C</p>
+                            <p><strong>Độ ẩm:</strong> {track.humidity.$numberDecimal} %</p>
+                            <p><strong>Trạng thái:</strong> {track.status}</p>
+                            <p><strong>Cập nhật:</strong> {new Date(track.updated).toLocaleString()}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>Không có thông tin theo dõi nào cho đợt thu hoạch này.</p>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Chưa có đợt thu hoạch nào.</p>
+        )}
       </div>
-    ) : null;
+    </div>
+  ) : null;
 };
   
 const Product = () => {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-    const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
-    const [editModalOpen, setEditModalOpen] = useState(false);
-    const [productToEdit, setProductToEdit] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState(null);
 
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [productToDelete, setProductToDelete] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
-    const [selectedProductModalOpen, setSelectedProductModalOpen] = useState(false);
-    const [productDetails, setProductDetails] = useState(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [productToDetails, setProductToDetails] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/api/products');
-            setProducts(response.data);
-            setLoading(false);
-        } catch (error) {
-            if (error.response && error.response.data) {
-            alert(error.response.data.message);
-            } else {
-            alert('Có lỗi xảy ra khi thêm sản phẩm!');
-            }
-            setLoading(false);
-        }
-        };
-
-        fetchData();
-    }, []);
-
-        const handleProductClick = (product) => {
-            setProductDetails(product);
-            setSelectedProductModalOpen(true);
-        };
-
-    const handleAdd = () => {
-        setAddModalOpen(true);
-    };
-
-    const handleSaveAdd = async (newProduct) => {
-        try {
-        const response = await axios.post('http://localhost:3000/api/products', newProduct);
-        setProducts([...products, response.data]);
-        setAddModalOpen(false);
-        alert('Sản phẩm đã được thêm!');      
-        window.location.reload();
-        } catch (error) {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/products');
+        setProducts(response.data);
+        setLoading(false);
+      } catch (error) {
         if (error.response && error.response.data) {
-            alert(error.response.data.message);
+          alert(error.response.data.message);
         } else {
-            alert('Có lỗi xảy ra khi thêm sản phẩm!');
+          alert('Có lỗi xảy ra khi thêm sản phẩm!');
         }
-        }
-    };  
-
-    const handleEdit = (product) => {
-        setProductToEdit(product);
-        setEditModalOpen(true);
+        setLoading(false);
+      }
     };
 
-    const handleSaveEdit = async (updatedProduct) => {
-        const isNoChange = updatedProduct.name === productToEdit.name && updatedProduct.type === productToEdit.type && updatedProduct.description === productToEdit.description;
-        if (isNoChange) {
-        alert('Không có thay đổi nào để lưu!');
-        return;
-        }
-        const isNameDuplicate = products.some(product => product.name === updatedProduct.name && product._id !== updatedProduct._id);
-        if (isNameDuplicate) {
-        alert('Tên sản phẩm đã tồn tại!');
-        return;
-        }
-    
-        try {
-        await axios.put(`http://localhost:3000/api/products/${updatedProduct._id}`, updatedProduct);
-        setProducts(products.map(p => p._id === updatedProduct._id ? updatedProduct : p));
-        setEditModalOpen(false);
-        alert('Sản phẩm đã được cập nhật!');
-        window.location.reload();
-        } catch (error) {
-        if (error.response && error.response.data) {
-            alert(error.response.data.message);
-        } else {
-            alert('Có lỗi xảy ra khi thêm sản phẩm!');
-        }
-        }
-    };
+    fetchData();
+  }, []);
 
-    const handleDelete = (product) => {
-        setProductToDelete(product);
-        setDeleteModalOpen(true);
-    };
+  const handleProductClick = (product) => {
+    setProductToDetails(product);
+    setDetailModalOpen(true);
+  };
 
-    if (loading) return <p>Loading...</p>;
+  const handleAdd = () => {
+    setAddModalOpen(true);
+  };
 
-    return (
+  const handleSaveAdd = async (newProduct) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/products', newProduct);
+      setProducts([...products, response.data]);
+      setAddModalOpen(false);
+      alert('Sản phẩm đã được thêm!');      
+      window.location.reload();
+    } catch (error) {
+      if (error.response && error.response.data) {
+        alert(error.response.data.message);
+      } else {
+        alert('Có lỗi xảy ra khi thêm sản phẩm!');
+      }
+    }
+  };  
+
+  const handleEdit = (product) => {
+    setProductToEdit(product);
+    setEditModalOpen(true);
+  };
+  
+  const handleSaveEdit = async (updatedProduct) => {
+    const isNoChange = updatedProduct.name === productToEdit.name && updatedProduct.type === productToEdit.type && updatedProduct.description === productToEdit.description && updatedProduct.image === productToEdit.image;
+    if (isNoChange) {
+      alert('Không có thay đổi nào để lưu!');
+      return;
+    }
+  
+    const isNameDuplicate = products.some(
+      (product) => product.name === updatedProduct.name && product._id !== productToEdit._id
+    );
+  
+    if (isNameDuplicate) {
+      alert('Tên sản phẩm đã tồn tại!');
+      return;
+    }
+
+    try {
+      const response = await axios.put( `http://localhost:3000/api/products/${productToEdit._id}`, updatedProduct, { headers: { "Content-Type": "multipart/form-data" }, } );
+      setProducts((prev) => prev.map((p) => (p._id === productToEdit._id ? response.data : p)) );
+      setEditModalOpen(false);
+      alert('Sản phẩm đã được cập nhật!');
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
+  const handleDelete = (product) => {
+    setProductToDelete(product);
+    setDeleteModalOpen(true);
+  };
+
+  if (loading) return <p>Loading...</p>;
+
+  return (
     <div>
       <header className="header">
         <div className="header-logo">
@@ -449,20 +461,19 @@ const Product = () => {
       </header>
       <nav className="navbar-tmp">
         <div className="navbar-tmp-section">
-            <div className="navbar-logo">
-                <h1>Farm Track</h1>
-            </div>
-            <div className="navbar-links">
-              <a href="/product">Nông sản</a>
-              <a href="/harvest">Mùa thu hoạch</a>
-              <a href="#contact">Liên hệ</a>
-            </div>
-            <div className="navbar-search">
-                <input type="search" placeholder="Search..." />
-            </div>
+          <div className="navbar-logo">
+            <h1>Farm Track</h1>
+          </div>
+          <div className="navbar-links">
+            <a href="/product">Nông sản</a>
+            <a href="/harvest">Mùa thu hoạch</a>
+            <a href="#contact">Liên hệ</a>
+          </div>
+          <div className="navbar-search">
+            <input type="search" placeholder="Search..." />
+          </div>
         </div>
       </nav>
-
       <div style={{ padding: '20px' }}>
         <div className="header-container">
           <h2 className="header-title">Quản lý nông sản</h2>
@@ -476,60 +487,60 @@ const Product = () => {
           <div className="product-list">
             {products.map((product) => (
               <div key={product.id} className="product-item">
-                  <img src={product.image} alt={product.name} onClick={() => handleProductClick(product)}/>
-                  <SwipeToRevealActions
+                <img src={product.image} alt={product.name} onClick={() => handleProductClick(product)}/>
+                <SwipeToRevealActions
                   actionButtons={[
-                      {
-                        content: <FaEdit className="edit-button" />,
-                        onClick: () => handleEdit(product),
-                      },
-                      {
-                        content: <FaTrash className="delete-button" />,
-                        onClick: () => handleDelete(product),
-                      },
+                    {
+                      content: <FaEdit className="edit-button" />,
+                      onClick: () => handleEdit(product),
+                    },
+                    {
+                      content: <FaTrash className="delete-button" />,
+                      onClick: () => handleDelete(product),
+                    },
                   ]}
                   actionButtonMinWidth={90}
-                  >
+                >
                   <div className="product-info">
-                      <h3 className="product-name">{product.name}</h3>
-                      <p className="product-type">{product.type || "Chưa có loại cây trồng"}</p>
+                    <h3 className="product-name">{product.name}</h3>
+                    <p className="product-type">{product.type || "Chưa có loại cây trồng"}</p>
                   </div>
-                  </SwipeToRevealActions>
+                </SwipeToRevealActions>
               </div>
             ))}
           </div>
         )}
       </div>
 
-    <AddProduct
-      isOpen={addModalOpen}
-      onClose={() => setAddModalOpen(false)}
-      onSave={handleSaveAdd}
-    />
-
-    {productToEdit && (
-      <EditProduct
-        isOpen={editModalOpen}
-        product={productToEdit}
-        onClose={() => setEditModalOpen(false)}
-        onSave={handleSaveEdit}
+      <AddProduct
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSave={handleSaveAdd}
       />
-    )}
 
-    <DeleteProduct
-      isOpen={deleteModalOpen}
-      product={productToDelete}
-      onClose={() => setDeleteModalOpen(false)}
-      onDelete={handleDelete}
-    />
+      {productToEdit && (
+        <EditProduct
+          isOpen={editModalOpen}
+          product={productToEdit}
+          onClose={() => setEditModalOpen(false)}
+          onSave={handleSaveEdit}
+        />
+      )}
 
-    <ProductModal
-      isOpen={selectedProductModalOpen}
-      product={productDetails}
-      onClose={() => setSelectedProductModalOpen(false)}
-    />
+      <DeleteProduct
+        isOpen={deleteModalOpen}
+        product={productToDelete}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDelete}
+      />
 
-  </div>
+      <DetailProduct
+        isOpen={detailModalOpen}
+        product={productToDetails}
+        onClose={() => setDetailModalOpen(false)}
+      />
+
+    </div>
   );
 };
 

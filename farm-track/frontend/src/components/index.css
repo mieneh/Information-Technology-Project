@@ -1,7 +1,7 @@
-/* Reset and Container Styling */
 * {
   font-family: 'Comfortaa', sans-serif;
 }
+
 body, html {
   margin: 0;
   padding: 0;
@@ -15,7 +15,6 @@ body, html {
   padding: 0 20px;
 }
 
-/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -291,7 +290,6 @@ section {
   color: #fff;
 }
 
-/* Responsive Styling */
 @media (max-width: 767px) {
   #features h2, #contact h2 {
       font-size: 28px;
