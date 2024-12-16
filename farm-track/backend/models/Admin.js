@@ -10,11 +10,10 @@ const adminSchema = new mongoose.Schema({
     created: { type: Date, default: Date.now },
 });
 
-// Middleware for hashing password
+// Mã hóa mật khẩu trước khi lưu vào MongoDB
 adminSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    this.password = await bcrypt.hash(this.password, 10);
     next();
 });
 

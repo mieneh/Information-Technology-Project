@@ -55,7 +55,8 @@ exports.createHarvest = async (req, res) => {
         newHarvest.qrCode = `/img/qr/${newHarvest._id}.png`;
         await newHarvest.save();
 
-        res.status(201).json(newHarvest);
+        console.error('Thêm đợt thu hoạch thành công:', newHarvest);
+        res.status(201).json({ message: 'Thêm đợt thu hoạch thành công', harvest: newHarvest });
     } catch (error) {
         console.error('Lỗi khi thêm thu hoạch:', error);
         res.status(500).json({ message: 'Có lỗi xảy ra khi thêm thu hoạch!', error: error.message });
@@ -71,7 +72,7 @@ exports.updateHarvest = async (req, res) => {
     const harvest = await Harvest.findById(req.params.id);
 
     if (!harvest) {
-      return res.status(404).json({ message: 'Harvest not found' });
+      return res.status(404).json({ message: 'Đợt thu hoạch không tồn tại!' });
     }
 
     // Cập nhật thông tin thu hoạch
@@ -82,10 +83,12 @@ exports.updateHarvest = async (req, res) => {
 
     await harvest.save();
 
-    res.status(200).json(harvest);
+    console.log('Cập nhật đợt thu hoạch thành công', harvest)
+    res.status(200).json({ message: 'Cập nhật đợt thu hoạch thành công', harvest });
   } catch (error) {
+    console.log(error)
     console.error(error);
-    res.status(500).json({ message: 'Error updating harvest data' });
+    res.status(500).json({ message: 'Có lỗi xảy ra khi cập nhật đợt thu hoạch.' });
   }
 };
 
@@ -111,7 +114,8 @@ exports.deleteHarvest = async (req, res) => {
 
         await Harvest.findByIdAndDelete(req.params.id);
 
-        res.json({ message: 'Xóa đợt thu hoạch thành công' });
+        console.log('Xóa đợt thu hoạch thành công.');
+        res.status(200).json({ message: 'Xóa đợt thu hoạch thành công' });
     } catch (error) {
         console.error('Lỗi khi xóa đợt thu hoạch:', error);
         res.status(500).json({ message: 'Lỗi khi xóa đợt thu hoạch', error });
@@ -129,7 +133,7 @@ exports.getHarvestById = async (req, res) => {
         const tracking = await Tracking.find({ harvestID: harvest._id }).lean();
         const enrichedHarvest = { ...harvest, tracking };
 
-        res.json(enrichedHarvest);
+        res.status(200).json(enrichedHarvest);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi tìm thu hoạch', error });
     }

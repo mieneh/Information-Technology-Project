@@ -81,9 +81,10 @@ exports.createProduct = async (req, res) => {
             const newProduct = new Product({ name, type, description, image });
             await newProduct.save();
 
+            console.error('Sản phẩm được thêm thành công!', newProduct)
             res.status(201).json({ message: 'Sản phẩm được thêm thành công!', product: newProduct });
         } catch (error) {
-            console.error('Error adding product:', error);
+            console.error('Có lỗi xảy ra trong khi thêm sản phẩm:', error);
             res.status(500).json({ message: 'Có lỗi xảy ra trong khi thêm sản phẩm.' });
         }
     });
@@ -120,6 +121,7 @@ exports.updateProduct = async (req, res) => {
 
             await product.save();
 
+            console.log('Sản phẩm được cập nhật thành công!', product)
             res.status(200).json({ message: 'Sản phẩm được cập nhật thành công!', product });
         } catch (error) {
             console.error(error);
@@ -150,7 +152,8 @@ exports.deleteProduct = async (req, res) => {
 
         await Product.findByIdAndDelete(req.params.id);
 
-        res.json({ message: 'Xóa sản phẩm thành công' });
+        console.log('Xóa sản phẩm thành công.');
+        res.status(200).json({ message: 'Xóa sản phẩm thành công' });
     } catch (error) {
         console.error('Lỗi khi xóa sản phẩm:', error);
         res.status(500).json({ message: 'Lỗi khi xóa sản phẩm', error });
@@ -182,7 +185,7 @@ exports.getProductById = async (req, res) => {
             harvests: enrichedHarvests,
         };
 
-        res.json(enrichedProduct);
+        res.status(200).json(enrichedProduct);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi tìm sản phẩm', error });
     }

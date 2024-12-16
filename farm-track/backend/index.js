@@ -5,6 +5,7 @@ const connectToDatabase = require('./connect/Database');
 const productRoutes = require('./routers/ProductRoutes');
 const harvestRoutes = require('./routers/HarvestRoutes');
 const trackingRoutes = require('./routers/TrackingRoutes');
+const authRoutes = require('./routers/AuthRoutes');
 
 const app = express();
 app.use(express.json());
@@ -19,7 +20,7 @@ connectToDatabase();
 app.use('/api/products', productRoutes);
 app.use('/api/harvests', harvestRoutes);
 app.use('/api/tracking', trackingRoutes);
-app.use('/api/login', trackingRoutes);
+app.use('/api/login', authRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {

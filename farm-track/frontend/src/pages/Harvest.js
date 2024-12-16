@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SwipeToRevealActions from 'react-swipe-to-reveal-actions';
-import { FaCheck, FaPlus, FaSave, FaRedoAlt, FaEdit, FaTrash, FaTimes, FaMapMarkerAlt, FaThermometerHalf, FaTint, FaCheckCircle, FaClock, FaCalendarAlt, FaRegClock, FaHashtag } from 'react-icons/fa';
+import { FaPlus, FaCheck, FaSave, FaRedoAlt, FaEdit, FaTrash, FaTimes, FaMapMarkerAlt, FaThermometerHalf, FaTint, FaCheckCircle, FaClock, FaCalendarAlt, FaRegClock, FaHashtag } from 'react-icons/fa';
 import '../components/product.css';
+import Header from "../components/Header";
 
 const AddHarvest = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -140,30 +141,38 @@ const AddHarvest = ({ isOpen, onClose, onSave }) => {
 
 const EditHarvest = ({ isOpen, onClose, onSave, harvest }) => {
   const [formData, setFormData] = useState({
-    harvestDate: harvest?.harvestDate ? harvest.harvestDate.slice(0, 10) : '',
-    expirationDate: harvest?.expirationDate ? harvest.expirationDate.slice(0, 10) : '',
-    quantity: harvest?.quantity || '',
-    certification: harvest?.certification || '',
+    harvestDate: '',
+    expirationDate: '',
+    quantity: '',
+    certification: '',
   });
 
+  useEffect(() => {
+    if (harvest) {
+      setFormData({
+        harvestDate: harvest.harvestDate.slice(0, 10),
+        expirationDate: harvest.expirationDate.slice(0, 10),
+        quantity: harvest.quantity,
+        certification: harvest.certification,
+      });
+    }
+  }, [harvest]);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.id]: e.target.value,
-    });
+    }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.put(`http://localhost:3000/api/harvests/${harvest._id}`, formData);
-      onSave(response.data);
-      onClose();
-      alert('Harvest data updated successfully!');
-    } catch (error) {
-      alert('Error updating harvest data!');
+    if (Object.values(formData).some((value) => value === null || value === undefined || value === '')) {
+      alert('Vui lòng điền vào tất cả các trường!');
+      return;
     }
-  };
+    onSave(formData);
+  };  
 
   return isOpen ? (
     <div className="modal">
@@ -308,8 +317,8 @@ const Harvest = () => {
 
   const handleSaveEdit = async (updatedHarvest) => {
     try {
-      await axios.put(`http://localhost:3000/api/harvests/${updatedHarvest._id}`, updatedHarvest);
-      setHarvests(harvests.map(h => h._id === updatedHarvest._id ? updatedHarvest : h));
+      const response = await axios.put(`http://localhost:3000/api/harvests/${harvestToEdit._id}`, updatedHarvest, { headers: { "Content-Type": "multipart/form-data" }, } );
+      setHarvests((prev) => prev.map((h) => (h._id === harvestToEdit._id ? response.data : h )) );
       setEditModalOpen(false);
       alert('Thu hoạch đã được cập nhật!');
       window.location.reload();
@@ -327,27 +336,7 @@ const Harvest = () => {
 
   return (
     <div>
-      <header className="header">
-        <div className="header-logo">
-          <img src='img/logo.png' alt="Logo" />
-        </div>
-      </header>
-      <nav className="navbar-tmp">
-        <div className="navbar-tmp-section">
-            <div className="navbar-logo">
-                <h1>Farm Track</h1>
-            </div>
-            <div className="navbar-links">
-              <a href="/product">Nông sản</a>
-              <a href="/harvest">Mùa thu hoạch</a>
-              <a href="#contact">Liên hệ</a>
-            </div>
-            <div className="navbar-search">
-                <input type="search" placeholder="Search..." />
-            </div>
-        </div>
-      </nav>
-      
+      <Header />
       <div style={{ padding: '20px' }}>
         <div className="header-container">
           <h2 className="header-title">Quản lý thu hoạch</h2>

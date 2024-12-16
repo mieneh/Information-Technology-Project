@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SwipeToRevealActions from "react-swipe-to-reveal-actions";
-import { FaPlus, FaSave, FaEdit, FaSyncAlt, FaTrash, FaRedoAlt, FaTimes, FaCheck} from 'react-icons/fa';
+import { FaBell, FaUser, FaPen, FaSignOutAlt, FaBars, FaPlus, FaSave, FaEdit, FaSyncAlt, FaTrash, FaRedoAlt, FaTimes, FaCheck} from 'react-icons/fa';
 import '../components/product.css';
+import Header from "../components/Header";
 
 const AddProduct = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -446,31 +447,12 @@ const Product = () => {
     setProductToDelete(product);
     setDeleteModalOpen(true);
   };
-
+  
   if (loading) return <p>Loading...</p>;
 
   return (
     <div>
-      <header className="header">
-        <div className="header-logo">
-          <img src='img/logo.png' alt="Logo" />
-        </div>
-      </header>
-      <nav className="navbar-tmp">
-        <div className="navbar-tmp-section">
-          <div className="navbar-logo">
-            <h1>Farm Track</h1>
-          </div>
-          <div className="navbar-links">
-            <a href="/product">Nông sản</a>
-            <a href="/harvest">Mùa thu hoạch</a>
-            <a href="#contact">Liên hệ</a>
-          </div>
-          <div className="navbar-search">
-            <input type="search" placeholder="Search..." />
-          </div>
-        </div>
-      </nav>
+      <Header />
       <div style={{ padding: '20px' }}>
         <div className="header-container">
           <h2 className="header-title">Quản lý nông sản</h2>
