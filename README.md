@@ -14,11 +14,13 @@ Bước 1. Cài đặt môi trường (React.js + Node.js + MongoDB)
 Bước 2. Khởi động Backend (Node.js)
 - Di chuyển đến thư mục chứa folder backend.
 - Cấu hình môi trường bằng cách truy cập .env
+```sh
     ADMIN_EMAIL=<email-cua-admin>
     ADMIN_PASSWORD=<mat-khau-cua-admin>
     MONGO_URI=mongodb://localhost:27017/<ten-database>
-    hoặc 
+    #hoặc
     MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/<database-name>?retryWrites=true&w=majority
+```
 - Nhấp chuột phải vào folder backend -> Chọn "Open in Terminal".
 - Cài đặt các thư viện cần thiết bằng cách gõ lệnh: npm install
 - Chạy server Node.js bằng cách gõ lệnh: npm start
