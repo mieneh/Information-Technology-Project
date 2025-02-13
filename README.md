@@ -3,15 +3,16 @@
 
 Dự án CNTT chủ đề "Xây dựng ứng dụng truy vết nông sản bằng mã QR"
 
-*Cách chạy chương trình Farm Track*
+-----------------------------------------------------------------------------
+# Cách chạy chương trình Farm Track
 
-Bước 1. Cài đặt môi trường (React.js + Node.js + MongoDB)
+***Bước 1. Cài đặt môi trường (React.js + Node.js + MongoDB)***
 - Cài đặt Node.js: Tải xuống từ link https://nodejs.org/.
 - Cài đặt MongoDB: Chọn 1 trong 2 cách:
     + Cài đặt MongoDB Community Server bằng cách tải xuống từ trang chính thức https://www.mongodb.com/try/download/community.
     + Hoặc sử dụng MongoDB Atlas bằng cách tạo tài khoản tại https://www.mongodb.com/cloud/atlas và cấu hình cluster để thay thế MongoDB cục bộ.
 
-Bước 2. Khởi động Backend (Node.js)
+***Bước 2. Khởi động Backend (Node.js)***
 - Di chuyển đến thư mục chứa folder backend.
 - Cấu hình môi trường bằng cách truy cập .env
 ```sh
