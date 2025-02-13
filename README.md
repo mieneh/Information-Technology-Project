@@ -4,7 +4,7 @@
 Dự án CNTT chủ đề "Xây dựng ứng dụng truy vết nông sản bằng mã QR"
 
 -----------------------------------------------------------------------------
-# Cách chạy chương trình Farm Track
+**Cách chạy chương trình Farm Track**
 
 ***Bước 1. Cài đặt môi trường (React.js + Node.js + MongoDB)***
 - Cài đặt Node.js: Tải xuống từ link https://nodejs.org/.
