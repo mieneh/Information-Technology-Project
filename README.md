@@ -25,6 +25,7 @@ Dự án CNTT chủ đề "Xây dựng ứng dụng truy vết nông sản bằn
 - Nhấp chuột phải vào folder backend -> Chọn "Open in Terminal".
 - Cài đặt các thư viện cần thiết bằng cách gõ lệnh: npm install
 - Chạy server Node.js bằng cách gõ lệnh: npm start
+
 -> Kết quả: Server sẽ chạy tại http://localhost:3000
 
 Bước 3. Khởi động Frontend (React.js)
@@ -32,4 +33,5 @@ Bước 3. Khởi động Frontend (React.js)
 - Nhấp chuột phải vào folder frontend -> Chọn "Open in Terminal".
 - Cài đặt các thư viện cần thiết bằng cách gõ lệnh: npm install
 - Chạy ứng dụng React bằng cách gõ lệnh: npm start
+
 -> Kết quả: Ứng dụng sẽ chạy tại http://localhost:3001
