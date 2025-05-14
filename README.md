@@ -28,7 +28,7 @@ Dự án CNTT chủ đề "Xây dựng ứng dụng truy vết nông sản bằn
 
 -> Kết quả: Server sẽ chạy tại http://localhost:3000
 
-Bước 3. Khởi động Frontend (React.js)
+***Bước 3. Khởi động Frontend (React.js)***
 - Di chuyển đến thư mục chứa folder frontend.
 - Nhấp chuột phải vào folder frontend -> Chọn "Open in Terminal".
 - Cài đặt các thư viện cần thiết bằng cách gõ lệnh: npm install
