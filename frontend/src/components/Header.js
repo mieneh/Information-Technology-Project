@@ -104,8 +104,8 @@ const Header = () => {
           <div className={`navbar-links ${menuOpen ? "open" : ""}`}>
             {role ? (
               <>
-                {(role in roleLinks) && roleLinks[role].map((link, index) => (
-                  <Link key={index} to={link.to}> {link.text} </Link>
+                {(role in roleLinks) && roleLinks[role].map((link) => (
+                  <Link key={link.to} to={link.to}> {link.text} </Link>
                 ))}
               </>
             ) : (
