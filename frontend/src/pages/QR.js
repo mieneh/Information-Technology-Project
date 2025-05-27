@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QrReader from 'react-qr-scanner';
 import jsQR from 'jsqr';
 import { FaUpload } from 'react-icons/fa';
@@ -7,10 +7,25 @@ import '../components/index.css';
 
 const QR = () => {
     const [activeTab, setActiveTab] = useState('camera');
+    const [cameraPermissionGranted, setCameraPermissionGranted] = useState(true); // 👈 Thêm state
 
     const handleTabClick = (tab) => {
         setActiveTab(tab);
     };
+
+    useEffect(() => {
+        if (activeTab === 'camera') {
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then(() => {
+                    setCameraPermissionGranted(true);
+                })
+                .catch((err) => {
+                    console.warn("Không có quyền truy cập camera:", err);
+                    setCameraPermissionGranted(false);
+                });
+        }
+    }, [activeTab]);
 
     const handleScanFromImage = (event) => {
         const file = event.target.files[0];
@@ -34,7 +49,6 @@ const QR = () => {
                         alert('Không thể quét mã QR từ ảnh.');
                     }
                 };
-                
             };
             reader.readAsDataURL(file);
         }
@@ -44,11 +58,9 @@ const QR = () => {
         if (data) {
             handleTabClick(data.text);
             handleRedirect(data.text);
-        } else {
-            console.log('Không quét được mã QR từ camera');
         }
     };
-    
+
     const handleError = (error) => {
         console.error(error);
     };
@@ -73,30 +85,32 @@ const QR = () => {
                 </div>
                 <div className="content-qr">
                     {activeTab === 'camera' && (
-                    <div className="camera-section">
-                        <p>Bật camera và nhắm vào hình ảnh mã QR</p>
-                        <div>
-                            <QrReader
-                                delay={300}
-                                style={{ width: '100%' }}
-                                onError={handleError}
-                                onScan={handleScanFromCamera}
-                            />
+                        <div className="camera-section">
+                            {!cameraPermissionGranted && (
+                                <p>Không thể truy cập camera. Vui lòng cho phép quyền truy cập camera trong trình duyệt.</p>
+                            )}
+                            {cameraPermissionGranted && (
+                                <QrReader
+                                    delay={300}
+                                    style={{ width: '100%' }}
+                                    onError={handleError}
+                                    onScan={handleScanFromCamera}
+                                />
+                            )}
                         </div>
-                    </div>
                     )}
                     {activeTab === 'upload' && (
-                    <div className="upload-section">
-                        <label htmlFor="file-upload" className="upload-label"><FaUpload style={{marginBottom: '10px', fontSize: 25}}/><p>Tải lên hoặc kéo và thả hình ảnh</p></label>
-                        <input
-                            id="file-upload"
-                            className="file-input-qr"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleScanFromImage}
-                        />
-                    </div>
-                )}
+                        <div className="upload-section">
+                            <label htmlFor="file-upload" className="upload-label"><FaUpload style={{marginBottom: '10px', fontSize: 25}}/><p>Tải lên hoặc kéo và thả hình ảnh</p></label>
+                            <input
+                                id="file-upload"
+                                className="file-input-qr"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleScanFromImage}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
