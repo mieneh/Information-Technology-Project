@@ -91,7 +91,7 @@ const Login = () => {
           </Form.Group>
           <button style={{color: 'white'}} type="submit" disabled={loading} className="button btn">{loading ? 'Đang đăng nhập...' : 'Đăng nhập'}</button>
         </Form>
-        <p className="small"> Chưa có tài khoản? <a href="https://zalo.me/0977896226" target="_blank" rel="noopener noreferrer">Liên hệ</a> | <a href="/register">Đăng ký</a> </p>
+        <p className="small"> Chưa có tài khoản? <a href="https://zalo.me/0877896226" target="_blank" rel="noopener noreferrer">Liên hệ</a> | <a href="/register">Đăng ký</a> </p>
       </div>
     </div>
   );
